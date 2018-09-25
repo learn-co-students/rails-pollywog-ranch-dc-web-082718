@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
 
+  resources :tadpoles
+  resources :ponds
+  resources :frogs
   # root
   root to: 'static_pages#home'
 
@@ -7,6 +10,8 @@ Rails.application.routes.draw do
   get '/ponds/:id/destroy', to: 'ponds#destroy'
   get '/frogs/:id/destroy', to: 'frogs#destroy'
   get '/tadpoles/:id/destroy', to: 'tadpoles#destroy'
+
+  post 'tadpoles/:id/metamorphose', to: 'tadpoles#metamorphose', as: 'metamorphose'
 
   # code your post to  '/tadpoles/:id/metamorphose' here
   # it should direct to the tadpoles controller, the metamorphose action

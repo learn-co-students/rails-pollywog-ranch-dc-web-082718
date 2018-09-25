@@ -1,62 +1,61 @@
 class TadpolesController < ApplicationController
-  before_action :set_tadpole, only: [:show, :edit, :update, :destroy, :metamorphose]
 
-  # add your metamorphose action here
+  def show
+
+    @tadpole = Tadpole.find(params[:id])
+  end
 
   def index
     @tadpoles = Tadpole.all
   end
 
-  def show
-  end
-
   def new
-    @frog = Frog.find(set_frog)
-    @tadpole = Tadpole.new
-  end
 
-  def edit
-    @frog = @tadpole.frog
+    if params[:frog_id] && !Frog.exists?(id: params[:frog_id])
+      redirect_to frogs_path, alert: "Frog not found."
+    else
+      @frog = Frog.find(params[:frog_id])
+      @tadpole = Tadpole.new(frog_id: params[:frog_id])
+    end
   end
 
   def create
-    @tadpole = Tadpole.new(tadpole_params)
-    respond_to do |format|
-      if @tadpole.save
-        format.html { redirect_to @tadpole, notice: 'Tadpole was successfully created.' }
-      else
-        format.html { render :new }
-      end
-    end
+
+    @tadpole = Tadpole.create(tadpole_params)
+    redirect_to tadpole_path(@tadpole)
+  end
+
+  def edit
+    @tadpole = Tadpole.find(params[:id])
+    @frog = @tadpole.frog
   end
 
   def update
-    respond_to do |format|
-      if @tadpole.update(tadpole_params)
-        format.html { redirect_to @tadpole, notice: 'Tadpole was successfully updated.' }
-      else
-        format.html { render :edit }
-      end
-    end
+    @tadpole = Tadpole.find(params[:id])
+    @tadpole.update(tadpole_params)
+    redirect_to tadpole_path(@tadpole)
+  end
+
+
+
+
+  def metamorphose
+    tadpole = Tadpole.find(params[:id])
+    frog = Frog.create(name: tadpole.name, color: tadpole.color, pond: tadpole.pond)
+    tadpole.destroy
+    redirect_to frog_path(frog)
   end
 
   def destroy
+    @tadpole = Tadpole.find(params[:id])
     @tadpole.destroy
-    respond_to do |format|
-      format.html { redirect_to tadpoles_url, notice: 'Tadpole was successfully destroyed.' }
-    end
+    redirect_to tadpoles_path
   end
 
   private
-    def set_tadpole
-      @tadpole = Tadpole.find(params[:id])
-    end
 
-    def set_frog
-      @frog = Frog.find(params[:frog_id])
-    end
+  def tadpole_params
+    params.require(:tadpole).permit(:name, :color, :frog_id)
+  end
 
-    def tadpole_params
-      params.require(:tadpole).permit(:name, :color, :frog_id)
-    end
 end
